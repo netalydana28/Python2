@@ -1,0 +1,1 @@
+#The same as sixth task in var2
