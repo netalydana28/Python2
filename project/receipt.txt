@@ -1,0 +1,32 @@
+-----------
+TICKET#-1-
+-----------
+Name: Yeldana
+Surname: Netaliyeva
+Ticket ID: 2531408f73824cfca97971ca48bd2f23
+Train ID: pt1214
+From station: Petropavlovsk
+To station: Taldykorgan
+Time in: 10:20
+Time out: 14:15
+Date: 19/10/2022
+Coach: 4
+Seat: 1
+Price: 360
+-----------
+TICKET#-2-
+-----------
+Name: Yeldana
+Surname: Netaliyeva
+Ticket ID: d469f64cf14d4d81b6fcb6a8e17a98d0
+Train ID: as1231
+From station: Almaty
+To station: Shymkent
+Time in: 12:30
+Time out: 15:15
+Date: 23/10/2022
+Coach: 2
+Seat: 4
+Price: 432
+
+TOTAL: 792
