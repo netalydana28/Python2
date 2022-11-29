@@ -2,6 +2,7 @@ from tkinter import *
 import numpy as np 
 import sympy as sym
 import math
+import re
 
 class online_calculator:
 
@@ -11,6 +12,9 @@ class online_calculator:
     def __init__(self):
         self.window.title("SVD decomposition")
         self.window.geometry("1536x864")
+
+    def Z5(n):
+        pass
 
     def change_rows(self):
         self.row_num = self.row.get()
@@ -134,8 +138,47 @@ class online_calculator:
         elif len(self.A_TA) == 3:
             det += (math.prod([self.A_TA[2][0], self.A_TA[0][1], self.A_TA[1][2]]) + math.prod([self.A_TA[1][0], self.A_TA[2][1], self.A_TA[0][2]]))
             det -= (math.prod([self.A_TA[1][1] - x, self.A_TA[0][2], self.A_TA[2][0]]) + math.prod([self.A_TA[0][1], self.A_TA[1][0], self.A_TA[2][2]-x]) + math.prod([self.A_TA[0][0]-x, self.A_TA[2][1], self.A_TA[1][2]]))
+        det = sym.expand(det)
         self.to_print += f"Characteristic polynomial: {det}\n\n"
-        self.eigenvalues = list(sym.solveset(sym.expand(det), x))
+        self.f = lambda y: det.subs(x, y)
+        self.eigenvalues = list()
+
+        for i in range(5):
+            if self.f(i) == 0:
+                self.eigenvalues.append(i)
+                break
+        
+        patterns = ["\+{1}\s?[0-9]*\.*[0-9]*\**x\*\*3|-{1}\s?[0-9]*\.*[0-9]*\**x\*\*3", "\+{1}\s?[0-9]*\.*[0-9]*\**x\*\*2|-{1}\s?[0-9]*\.*[0-9]*\**x\*\*2", "\+{1}\s?[0-9]*\.*[0-9]*\**x{1}|-{1}\s?[0-9]*\.*[0-9]*\**x{1}", "-{1}\s?[0-9]+\.*[0-9]*$|\+{1}\s?[0-9]+\.*[0-9]*$"]
+        coeffs = list()
+        print(re.findall("\+{1}\s?[0-9]*\.*[0-9]*\**x{1}[^*]|-{1}\s?[0-9]*\.*[0-9]*\**x{1}[^*]", str(det)))
+        print(det)
+        for i in range(len(patterns)):
+            temp = re.findall(patterns[i], str(det))
+            print(temp)
+            
+            if len(temp) != 0:
+                num_existence = re.findall("\+{1}\s?[0-9]+\.*[0-9]*|-{1}\s?[0-9]+\.*[0-9]*", temp[len(temp)-1])
+                print(f"{i}Num = 0")
+                if len(num_existence) == 0:
+                    print("     -+")
+                    minus_existens = re.findall("-", temp[len(temp)-1])
+                    to_append = -1.0 if len(minus_existens) !=0 else 1.0
+                    coeffs.append(to_append)
+                else:
+                    num_existence = re.findall("-*\s?[0-9]+\.*[0-9]*$", num_existence[0])
+                    print(num_existence)
+                    num_existence = re.sub("\s", "", num_existence[0])
+                    print(num_existence)
+                    coeffs.append(float((num_existence)))    
+            else:
+                coeffs.append(0.0)  
+                print(f"{i}Len = 0")
+                
+    
+        print(f"Coeffs: {coeffs}")
+
+
+        print(self.eigenvalues)
         self.eigenvalues.sort(key=lambda x: x == 0) #transfer zeros in the end of the list
 
     def D(self):
@@ -166,25 +209,55 @@ class online_calculator:
     def eigenvectors(self):
         diag = list(np.diag(self.A_TA))
         D = list()
+        x = sym.Symbol('x')
+        y = sym.Symbol('y')
+        z = sym.Symbol('z')
         for i in range(len(self.eigenvalues)):
             for j in range(len(self.A_TA)):
                 self.A_TA[j][j] = self.A_TA[j][j] - self.eigenvalues[i]
 
-            x = sym.Symbol('x')
-            y = sym.Symbol('y')
-            z = sym.Symbol('z')
+            
             to_solve = np.matmul(self.A_TA, [x, y, z])
 
-            
+            print(to_solve)
+
             D.append(self.det(self.A_TA))
 
             for j in range(len(self.A_TA)):
                 self.A_TA[j][j] = diag[j]
+        print(D)
+
+    def ortogonalize(self):
+        k = list()
+        for i in range(1, len(self.eigenvectors)):
+            temp = np.dot(self.eigenvectors[i], self.eigenvectors[i-1])/np.dot(self.eigenvectors[i-1], self.eigenvectors[i-1])
+            k.append(temp)
+
+            for j in range(len(k)):
+                self.eigenvectors[i] -= k[j] * self.eigenvectors[j]
+
+    def normalize(v):
+        length_v = 0
+        for i in range(len(v)):
+            length_v += v[i]**2
+
+        length_v = length_v ** 0.5
+        for i in range(len(v)):
+            v[i] = v[i]/length_v
+        
 
     def SVD(self):
         self.D()
         self.eigenvectors()
+
+        """
+        if np.dot(self.eigenvectors[0], self.eigenvectors[1]) != 0 or np.dot(self.eigenvectors[1], self.eigenvectors[2]) != 0 or np.dot(self.eigenvectors[0], self.eigenvectors[2]) != 0:
+            self.ortogonalize(self.eigenvectors)
+        for i in range(len(self.eigenvectors)):
+            self.normalize(self.eigenvectors[i])
+        """
         print(self.to_print)
+
         
         scroll_bar = Scrollbar(self.frame, orient = "vertical") # Create a scroll bar
         text_widget = Text(self.frame, yscrollcommand=scroll_bar.set) # Create a text_widget 

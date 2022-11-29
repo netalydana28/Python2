@@ -1,2 +1,4 @@
-import numpy
-print(numpy.linalg.eig.__file__)
+import re 
+temp = "Spain"
+print(re.findall)
+
