@@ -144,7 +144,7 @@ class online_calculator:
 
     def gorner(self, x0, a, b, c, d):
         if a == 0:
-            self.eigenvalues.pop()
+            self.eigenvalues.pop(0)
             self.solve_square_eq(b, c, d)
         else:
             asq = a
@@ -165,8 +165,7 @@ class online_calculator:
 
         return round(x)
 
-
-    def eigenvalues(self):
+    def eigenvalues_find(self):
         if len(self.A_TA) == 2:
             a = 0
             b = -1
@@ -225,17 +224,18 @@ class online_calculator:
         a, b, c, d = coeffs[0], coeffs[1], coeffs[2], coeffs[3]
         """
         self.gorner(self.eigenvalues[0], a, b, c, d)
-        print(self.eigenvalues)
-        self.eigenvalues.sort(key=lambda x: x == 0) #transfer zeros in the end of the list
+        print(f"EIGVALUES: {self.eigenvalues}")
+        self.eigenvalues.sort(reverse = True) 
+        print(f"EIGVALUES: {self.eigenvalues}")
 
-    def D(self):
+    def D_find(self):
         self.to_print = f"Your matrix:\n {self.A}\n\n"
         #Find A_T * A
         self.A_TA = np.matmul(self.A.T, self.A)
         self.to_print += f"A^T * A:\n {self.A_TA}\n\n"
         
         #Find eigenvalues of A_TA
-        self.eigenvalues()
+        self.eigenvalues_find()
         self.D = np.zeros((len(self.A_TA), len(self.A_TA[0])) , dtype = float)
         self.to_print += f"Eigenvalues of A^T*A: {self.eigenvalues}\n\n"
 
@@ -280,7 +280,7 @@ class online_calculator:
             return np.array(np.array(temp).reshape(3, 3), dtype = float)
 
 
-    def eigenvectors(self):
+    def eigenvectors_find(self):
         self.eigenvectors = list()
         diag = list(np.diag(self.A_TA))
         for i in range(len(self.eigenvalues)):
@@ -297,18 +297,11 @@ class online_calculator:
                     self.A_TA[j][j] = diag[j]
                 w, v = np.linalg.eig(self.A_TA)
                 self.eigenvectors.append(v[i]) 
-                print(f"Matrix {self.A_TA}\n {v}\n")
                 
             else:
-                print(f"A_TA: {self.A_TA}")
                 inverse = (1 / self.det(self.A_TA) ) * self.adjoint()
-                print(f"Inverse: {inverse}")
                 vector = np.dot(inverse, np.zeros(len(self.A_TA), dtype = float))
-                print(vector)
                 self.eigenvectors.append(vector)
-                print(f"MMatrix {self.A_TA}\n {vector}\n")
-
-
 
             for j in range(len(self.A_TA)):
                 self.A_TA[j][j] = diag[j]
@@ -339,8 +332,8 @@ class online_calculator:
             length += v[i]**2
         return round(length**0.5)
 
-    def C(self):
-        self.eigenvectors()
+    def C_find(self):
+        self.eigenvectors_find()
         
         if np.dot(self.eigenvectors[0], self.eigenvectors[1]) != 0:
             if len(self.A_TA) == 2:
@@ -349,16 +342,14 @@ class online_calculator:
                 if np.dot(self.eigenvectors[1], self.eigenvectors[2]) != 0 or np.dot(self.eigenvectors[0], self.eigenvectors[2]) != 0:
                     self.ortogonalize()
 
-        print(f"!!!!!!!!!!{self.eigenvectors}")
         for i in range(len(self.eigenvectors)):
-            print(f"!!!{self.eigenvectors[i]}")
             if self.length(self.eigenvectors[i]) != 0:
                 self.normalize(self.eigenvectors[i])
 
         self.C = self.eigenvectors.T
         self.to_print += f"C_T: {self.C}\n\n"
 
-    def B(self):
+    def B_find(self):
         temp = list()
         for i in range(len(self.sigmas)):
             a = 1/self.sigmas[i]
@@ -370,9 +361,9 @@ class online_calculator:
         self.to_print += f"B: {self.B}\n\n"
 
     def SVD(self):
-        self.D()
-        self.C()
-        self.B()
+        self.D_find()
+        self.C_find()
+        self.B_find()
         self.to_print += f"SVD:\n {self.B} {self.D} {self.C}\n"
 
         print(self.to_print)
