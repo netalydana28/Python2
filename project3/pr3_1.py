@@ -2,24 +2,18 @@ import numpy as np
 from fractions import Fraction
 import copy
 
-#mat=np.array([[8,0,2],
-#             [0,4,0],
-#             [2,0,5]],dtype=float)
-mat=np.array([[1,1,2],
-            [0,3,2],
-            [1,3,9]])
-n=len(mat)
-e=np.zeros((n,n),dtype=float)
-np.fill_diagonal(e,1) 
 
-coef_pol=list()
-coef=list()
-a_inv=np.zeros((n,n)) 
-b_inv=np.zeros((n,n)) 
-b_list=list()
-y=np.zeros((n,1))
-y0=(e[:,[1]])
-y_list=list()
+
+'''mat=np.array([[5,-4,4],
+            [2,1,2],
+            [2,1,3]],dtype=float) '''
+
+
+
+# mat=np.array([[7,-4,4],
+#             [2,3,2],
+#             [2,0,5]],dtype=float)
+#print(m1.ref())
 
 def is_in_ref(mat):
     lead_entry = [] 
@@ -53,11 +47,9 @@ def swap_rows(a,i1, i2):
     return a
 def ref(mat,l):
     x = mat
-    s = 0    
-    #print(x)
+    s = 0
     e=np.zeros((n,n))
     np.fill_diagonal(e,1)
-    e_1=list()
     #print(x)
     if not is_in_ref(x):
             #print(x)
@@ -93,24 +85,14 @@ def ref(mat,l):
                     #print(x)
                     if is_in_ref(x):
                         for m in range(n):
-                            #if all(elements==0 for elements in x[m]):
-                            if any(x[i])==0:
-                                e_1.append(e[m])
-                               #break
-                                #return e_1
-                                #print(e[m]) #e[i+l]
+                            if any(x[m])==0:  
+                                return e[m+l]
                 s+=1
-    #print(e)
+    print(x)
     for i in range(n):
         if any(x[i])==0:
-        #    return (e[i+l])
-        #if all(elements==0 for elements in x[i]):
-            #print(e[m]) #e[i+l]
-            e_1.append(e[i])
-            
-    return e_1
+            return e[i+l]
 
-    #return True
 def ortogonalize(x_ev2):
     x_ev=np.transpose(x_ev2)
     #x_ev2=list(size=len(x_ev))
@@ -136,33 +118,24 @@ def normalize(v):
     for k in range(len(v)):
         v[k] = v[k]/length_v    
     print(v) 
+
 def inverse(b_list,coef_pol):
     for i in range(n):
         a_inv[i]=b_list[n-2][i]/coef_pol[n-1]
     return a_inv
+
 def eigenvector(roots):
     eiv=list()
-    eiv2=list()
-    r=np.unique(roots)
-    r[::-1].sort()
-    print(r)
-    for i in range(len(r)):
-        # if np.count_nonzero(roots==roots[i])>1:
-        #print("0")
-        #if i-1!=-1 and roots[i]==roots[i-1]:
-        b=np.subtract(mat,(r[i])*e)
-        #print(ref(b.transpose(),1))
-        eiv.append(ref(b.transpose(),1))
-        #else:
-        #    print("1")
-        #    b=np.subtract(mat,(roots[i])*e)
+    for i in range(len(roots)):
+        if i-1!=-1 and roots[i]==roots[i-1]:
+            b=np.subtract(mat,(roots[i])*e)
+            #print(mat,b)
+            eiv.append(ref(b.transpose(),1))
+        else:
+            b=np.subtract(mat,(roots[i])*e)
             #print(b)
-        #    eiv.append(ref(b.transpose(),0))
-    for i in range(len(eiv)):
-        eiv2+=eiv[i]
-    print(np.array(eiv2).transpose())
-    #print(np.asarray(eiv))
-    #print((np.array(eiv).transpose()))
+            eiv.append(ref(b.transpose(),0))
+    return np.array(eiv).transpose()
 def qwer(x,k):
     #global a
     b=np.zeros((n,n))
@@ -188,9 +161,27 @@ def qwer(x,k):
                 coef.append(-coef_pol[i])
         roots=np.around(np.roots(coef),decimals=2)
         roots[::-1].sort()
-        print(roots)
-        eigenvector(roots)
-        return True
+        return roots, eigenvector(roots)
     return qwer(f,k)
-    
-print(qwer(mat,1))
+
+def eig(x):
+    global mat, n, e, coef_pol, coef, a_inv, b_inv, b_list, y, y0, y_list
+    mat = x
+    n=len(mat)
+    e=np.zeros((n,n),dtype=float)
+    np.fill_diagonal(e,1) 
+
+    coef_pol=list()
+    coef=list()
+    a_inv=np.zeros((n,n)) 
+    b_inv=np.zeros((n,n)) 
+    b_list=list()
+    y=np.zeros((n,1))
+    y0=(e[:,[1]])
+    y_list=list()
+    return qwer(mat, 1)
+
+
+
+#eigenvalues, eigenvectors = qwer(mat,1)
+#print(eigenvalues, eigenvectors)
