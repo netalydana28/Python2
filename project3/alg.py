@@ -301,13 +301,20 @@ class decompositions:
                 if not nul_col:
                     for k in range(s+1, self.n):
                         ratio = x[k,j]/x[s,j]
-                        x[k, :] = np.around(x[k, :] - ratio * x[s, :],decimals=1)
+                        #x[k, :] = np.around(x[k, :] - ratio * x[s, :],decimals=1)
+                        x[k, :] = (x[k, :] - ratio * x[s, :])
                         e[k, :] = e[k, :] - ratio * e[s, :]
                         if self.is_in_ref(x):
                             for m in range(self.n):
                                 if any(x[i])==0:
                                     pass               
                     s+=1
+        for i in range(self.n): 
+            if any(np.around(x[i],decimals=1))==0: 
+                e_1.append(e[i])        
+        #print(x) 
+        return e_1
+
         for i in range(self.n):
             if any(x[i])==0:
                 e_1.append(e[i])       
@@ -408,8 +415,9 @@ class decompositions:
         
         #Find eigenvalues of A_TA
         self.eigenvalues, self.eigenvectors = self.eig(self.A_TA)
-        # print(self.eigenvalues)
-        # print(self.eigenvectors)
+        print(self.eigenvalues)
+        print("____________")
+        print(self.eigenvectors)
         self.sigmas = list()
         for i in range(len(self.eigenvalues)):
             if self.eigenvalues[i]**0.5 != 0:
