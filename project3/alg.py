@@ -358,7 +358,7 @@ class decompositions:
             temp_mat = self.A.copy()
             self.A = self.A_TA
             #self.eigenvalues=np.around(np.roots(self.coef),decimals=2)
-            self.eigenvalues = np.diag(self.hessenberg())
+            self.eigenvalues = np.diag(self.schur())
             self.A = temp_mat
             self.eigenvalues = np.sort(self.eigenvalues)[::-1]
             self.eigenvector()
@@ -484,7 +484,7 @@ class decompositions:
     def isuppertriangular(self, M):
         for i in range(1, len(M)):
             for j in range(0, i):
-                if M[i][j] > 0.001:
+                if abs(M[i][j]) > 0.001:
                     return False
         return True
 
@@ -495,7 +495,7 @@ class decompositions:
             
         return M
 
-    def hessenberg(self):
+    def schur(self):
         while not self.isuppertriangular(self.A):
             Q, R = self.QR()
             self.A = np.matmul(R, Q)
