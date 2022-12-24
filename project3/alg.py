@@ -415,9 +415,9 @@ class decompositions:
         
         #Find eigenvalues of A_TA
         self.eigenvalues, self.eigenvectors = self.eig(self.A_TA)
-        print(self.eigenvalues)
-        print("____________")
-        print(self.eigenvectors)
+        # print(self.eigenvalues)
+        # print("____________")
+        # print(self.eigenvectors)
         self.sigmas = list()
         for i in range(len(self.eigenvalues)):
             if self.eigenvalues[i]**0.5 != 0:
@@ -485,8 +485,10 @@ class decompositions:
             return self.Q, self.R
 
     def Polar(self):
-        self.U = np.matmul(self.B, self.C)
-        self.H = np.matmul(np.matmul(self.C.T, self.D), self.C)
+        self.SVD()
+
+        self.U = np.matmul(self.B, self.C.T)
+        self.H = np.matmul(np.matmul(self.C, self.D), self.C.T)
         return self.U, self.H
 
     def isuppertriangular(self, M):
