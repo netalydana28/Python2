@@ -274,6 +274,7 @@ class decompositions:
 
     def ref(self, mat, l):
         x = mat
+        # print("dfg,", x)
         s = 0    
         e = np.zeros((self.n, self.n))
         np.fill_diagonal(e,1)
@@ -312,13 +313,10 @@ class decompositions:
         for i in range(self.n): 
             if any(np.around(x[i],decimals=1))==0: 
                 e_1.append(e[i])        
-        #print(x) 
+        # print("asd",e_1) 
         return e_1
 
-        for i in range(self.n):
-            if any(x[i])==0:
-                e_1.append(e[i])       
-        return e_1
+
 
     def inverse(self):
         
@@ -332,6 +330,7 @@ class decompositions:
         eiv2=list()
         r=np.unique(self.eigenvalues)
         r[::-1].sort()
+        # print("asdf,", self.mat)
         for i in range(len(r)):
             b=np.subtract(self.mat,(r[i])*self.e)
             eiv.append(self.ref(b.transpose(),1))
@@ -381,22 +380,34 @@ class decompositions:
         self.coef=list()
         self.a_inv=np.zeros((self.n, self.n))  
         self.b_list=list()
-        return self.qwer(self.mat, 1)    
+        return self.qwer(self.mat, 1) 
+
+    def coefficients(self):
+        self.A_TA = self.A
+        val, vec = self.eig(self.A)
+        return self.coef   
       
     def ortogonalize(self):
-            k = list()
-            for i in range(1, len(self.eigenvectors)):
+        k = list()
+        for i in range(1, len(self.eigenvectors)):
 
-                for j in range(i):
-                    if np.dot(self.eigenvectors[j], self.eigenvectors[j]) != 0:
-                        temp = np.dot(self.eigenvectors[i], self.eigenvectors[j])/np.dot(self.eigenvectors[j], self.eigenvectors[j])
-                    else: 
-                        temp = 1
-                    k.append(temp)
+            for j in range(i):
+                if np.dot(self.eigenvectors[j], self.eigenvectors[j]) != 0:
+                    temp = np.dot(self.eigenvectors[i], self.eigenvectors[j])/np.dot(self.eigenvectors[j], self.eigenvectors[j])
+                    # if i == 2:
+                    #     print(f"{temp} --- np.dot({self.eigenvectors[i]}, {self.eigenvectors[j]})/np.dot({self.eigenvectors[j]}, {self.eigenvectors[j]})")
+                else: 
+                    temp = 1
+                k.append(temp)
+            # print(i, self.eigenvectors[i])
 
-                for j in range(len(k)):
-                    self.eigenvectors[i] -= k[j] * self.eigenvectors[j]
-                k.clear()
+            for j in range(len(k)):
+                self.eigenvectors[i] -= k[j] * self.eigenvectors[j]
+                # if i == 2:
+                #     print(k[j], self.eigenvectors[j])
+            k.clear()
+
+            
 
     def normalize(self):
         for i in range(len(self.eigenvectors)):
@@ -409,9 +420,17 @@ class decompositions:
                 if length_v != 0:
                     self.eigenvectors[i][k] = self.eigenvectors[i][k]/length_v
 
+    def round_eigenvectors(self):
+        for i in range(len(self.eigenvectors)):
+            for j in range(len(self.eigenvectors)):
+                if abs(self.eigenvectors[i][j]) < 0.0000001:
+                    self.eigenvectors[i][j] = 0
+
+
     def D_find(self):
         #Find A_T * A
-        self.A_TA = np.matmul(self.A.T, self.A) 
+        self.A_TA = np.matmul(self.A, self.A.T) 
+        # print(self.A_TA)
         
         #Find eigenvalues of A_TA
         self.eigenvalues, self.eigenvectors = self.eig(self.A_TA)
@@ -463,7 +482,12 @@ class decompositions:
         self.eigenvectors = self.A.copy()
         self.eigenvectors = self.eigenvectors.T
         self.ortogonalize()
+        #self.round_eigenvectors()
+
         self.normalize()
+        
+        # print("__________")
+        # print(self.eigenvectors)
         self.Q = self.eigenvectors.copy()
         self.Q = self.Q.T
             
@@ -603,8 +627,8 @@ class Decompositions2():
         D = np.zeros((n,n))
         U1= np.zeros((n,n))
         np.fill_diagonal(L,1)
-        P = np.zeros((n,n))
-        np.fill_diagonal(P,1)    
+        self.P = np.zeros((n,n))
+        np.fill_diagonal(self.P,1)    
         for i in range(n):
             for j in range(i+1, n):
                 if U[i][i]!=0:
@@ -614,9 +638,9 @@ class Decompositions2():
                     #print(self.A)
                 else:
                     w=tuple(U[i])
-                    w_p=tuple(P[i])
+                    w_p=tuple(self.P[i])
                     self.U=self.swap(U,i,w)
-                    self.P=self.swap(P,i,w_p)
+                    self.P=self.swap(self.P,i,w_p)
         d=np.diag(U)
         np.fill_diagonal(D,d)
         
